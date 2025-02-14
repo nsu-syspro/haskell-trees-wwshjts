@@ -75,24 +75,95 @@ Ok, one module loaded.
 
 </details>
 
-## Task 1 (6 points)
+## Preface
 
-Implement factorial of n.
+In this assignment you will implement some basic tree processing functionality
+starting with traversal, binary search tree and then implementing tree-based map structure.
+Each task is based on results from all previous ones, so they should be implemented in order.
 
-$$
-n! = 1 \cdot 2 \cdot ... \cdot n
-$$
+## Task 1 (3 points)
+
+### Tree traversal
+
+The first task is to define functions for traversing tree and forest (list of trees).
+
+There are [many ways](https://en.wikipedia.org/wiki/Tree_traversal) to traverse trees.
+However, we will focus on the most common ones derived from deep-first search:
+
+- Pre-order
+- In-order
+- Post-order
+
+All of which are perfectly illustrated in [Wikipedia](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search):
+
+[![](https://upload.wikimedia.org/wikipedia/commons/7/75/Sorted_binary_tree_ALL_RGB.svg)](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search)
+
+> Depth-first traversal (dotted path) of a binary tree:  
+> Pre-order (node visited at position red ●):  
+>     F, B, A, D, C, E, G, I, H;  
+> In-order (node visited at position green ●):  
+>     A, B, C, D, E, F, G, H, I;  
+> Post-order (node visited at position blue ●):  
+>     A, C, E, D, B, H, I, G, F.
+
+### Task
+
+In [src/Task1.hs](src/Task1.hs] you will find following type definitions of binary tree, forest and enumeration of selected orders:
 
 ```haskell
-factorial :: Integer
+data Tree a = Leaf a | Branch a (Tree a) (Tree a)
+  deriving Show
+
+type Forest a = [Tree a]
+
+data Order = PreOrder | InOrder | PostOrder
+  deriving Show
 ```
-**Example:**
-```haskell
->>> factorial 0
-1
->>> factorial 5
-120
-```
+
+Your goal is to implement following functions for tree and forest traversal:
+
+- `torder` which returns values of given `Tree` in specified `Order` with optional leaf value
+  ```haskell
+  torder :: Order    -- ^ Order of resulting traversal
+         -> Maybe a  -- ^ Optional leaf value
+         -> Tree a   -- ^ Tree to traverse
+         -> [a]      -- ^ List of values in specified order
+  ```
+  **Example:**
+  ```haskell
+  >>> torder PreOrder  (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
+  "A.B.."
+  >>> torder InOrder   (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
+  ".A.B."
+  >>> torder PostOrder (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
+  "...BA"
+  ```
+- `forder` which returns values of given `Forest` separated by optional separator (first `Maybe` arg)
+  where each tree is traversed in specified `Order` with optional leaf value (second `Maybe` arg)
+  ```haskell
+  forder :: Order     -- ^ Order of tree traversal
+         -> Maybe a   -- ^ Optional separator between resulting tree orders
+         -> Maybe a   -- ^ Optional leaf value
+         -> Forest a  -- ^ List of trees to traverse
+         -> [a]       -- ^ List of values in specified tree order
+  ```
+  **Example:**
+  ```haskell
+  >>> forder PreOrder  (Just '|') (Just '.') [Leaf, Branch 'C' Leaf Leaf, Branch 'A' Leaf (Branch 'B' Leaf Leaf)]
+  ".|C..|A.B.."
+  >>> forder InOrder   (Just '|') (Just '.') [Leaf, Branch 'C' Leaf Leaf, Branch 'A' Leaf (Branch 'B' Leaf Leaf)]
+  ".|.C.|.A.B."
+  >>> forder PostOrder (Just '|') (Just '.') [Leaf, Branch 'C' Leaf Leaf, Branch 'A' Leaf (Branch 'B' Leaf Leaf)]
+  ".|..C|...BA"
+  ```
+
+> [!TIP]
+>
+> For this task you might want to implement and use functions
+> [maybeToList](https://hackage.haskell.org/package/base-4.21.0.0/docs/Data-Maybe.html#v:maybeToList) and
+> [intercalate](https://hackage.haskell.org/package/base-4.21.0.0/docs/Data-List.html#v:intercalate).
+>
+> Feel free to check out their documentation, but please try to implement them yourself without looking into library source code.
 
 ## Task 2 (4 points)
 
