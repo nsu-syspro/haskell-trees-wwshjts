@@ -5,19 +5,32 @@ module Task2 where
 
 -- Explicit import of Prelude to hide functions
 -- that are not supposed to be used in this assignment
-import Prelude hiding (foldl, foldr, sum)
+import Prelude hiding (compare, foldl, foldr, Ordering(..))
 
------------------------------------
---
--- Computes sum from 1 to n
---
--- Usage example:
---
--- >>> sumtorial 5
--- 16
+import Task1 (Tree(..))
 
-sumtorial :: Integer -> Integer
--- Stub implementation for use in actual assignment
--- factorial = error "TODO: define sumtorial"
-sumtorial 0 = 1
-sumtorial n = n + sumtorial (n - 1)
+data Ordering = LT | EQ | GT
+  deriving Show
+
+type Cmp a = a -> a -> Ordering
+
+compare :: Ord a => Cmp a
+compare = error "TODO: define compare"
+
+listToBST :: Cmp a -> [a] -> Tree a
+listToBST = error "TODO: define listToBST"
+
+bstToList :: Tree a -> [a]
+bstToList = error "TODO: define bstToList"
+
+isBST :: Cmp a -> Tree a -> Bool
+isBST = error "TODO: define isBST"
+
+tlookup :: Cmp a -> a -> Tree a -> Maybe a
+tlookup = error "TODO: define tlookup"
+
+tinsert :: Cmp a -> a -> Tree a -> Tree a
+tinsert = error "TODO: define tinsert"
+
+tdelete :: Cmp a -> a -> Tree a -> Tree a
+tdelete = error "TODO: define tdelete"
