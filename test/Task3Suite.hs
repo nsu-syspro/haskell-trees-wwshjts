@@ -7,7 +7,6 @@ import Test.Tasty.QuickCheck
 import Prelude hiding (compare, Ordering(..))
 
 import Task1
-import Task2
 import Task3
 
 import Task1Suite
@@ -23,7 +22,7 @@ task3Tests = testGroup "Task3"
   [ testProperty "mapToList tree == sort (mapToList tree)" $
       withMaxSuccess 100 $ counterexample "unexpected result for" $
         \(TestMap tree) ->
-          bstToList (tree :: Map Int Char) === sortBy (comparing fst) (bstToList tree)
+          mapToList (tree :: Map Int Char) === sortBy (comparing fst) (mapToList tree)
 
   , testProperty "mapToList (listToMap list) == sort list" $
       withMaxSuccess 100 $ counterexample "unexpected result for" $

@@ -41,6 +41,18 @@ task2Tests = testGroup "Task2"
               then Just x
               else Nothing
 
+  , testProperty "tlookup returns found value (not the one that was searched for)" $
+      withMaxSuccess 100 $
+        \(Blind x) ->
+          counterexample ("unexpected result of `tlookup (cmpMod3) " ++ show x ++ " (" ++ show bstMod3 ++ ")`") $
+            tlookup (cmpModN 3) x bstMod3 === Just (x `mod` 3)
+
+  , testProperty "tinsert updates value if exists" $
+      withMaxSuccess 100 $
+        \(Blind x) ->
+          counterexample ("unexpected result of `bstToList (tinsert (cmpMod3) " ++ show x ++ " (" ++ show bstMod3 ++ ")`") $
+            bstToList (tinsert (cmpModN 3) x bstMod3) === map (\y -> if x `mod` 3 == y then x else y) [0,1,2]
+
   , testProperty "bstToList (tinsert x tree) == sort unique (x : bstToList tree)" $
       withMaxSuccess 1000 $ counterexample "unexpected result for" $
         \(x, TestBST tree) ->
@@ -53,6 +65,12 @@ task2Tests = testGroup "Task2"
           classify (x `elem` bstToList tree) "contains" $
             bstToList (tdelete compare x (tree :: Tree Int)) === delete x (bstToList tree)
   ]
+
+cmpModN :: Integral a => a -> Cmp a
+cmpModN n x y = compare (x `mod` n) (y `mod` n)
+
+bstMod3 :: Tree Int
+bstMod3 = Branch 1 (Branch 0 Leaf Leaf) (Branch 2 Leaf Leaf)
 
 isUniqueSorted :: Ord a => [a] -> Bool
 isUniqueSorted xs = xs == sort (nub xs)

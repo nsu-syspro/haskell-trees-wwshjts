@@ -9,28 +9,80 @@ import Prelude hiding (compare, foldl, foldr, Ordering(..))
 
 import Task1 (Tree(..))
 
------------------------------------
---
--- Computes sum from 1 to n
+-- * Type definitions
+
+-- | Tree-based map
+type Map k v = Tree (k, v)
+
+-- * Function definitions
+
+-- | Construction of 'Map' from associative list
 --
 -- Usage example:
 --
--- >>> sumtorial 5
--- 16
-
-type Map k v = Tree (k, v)
-
+-- >>> listToMap [(2,'a'),(3,'c'),(1,'b')]
+-- Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf)
+-- >>> listToMap [] :: Map Int Char
+-- Leaf
+--
 listToMap :: Ord k => [(k, v)] -> Map k v
 listToMap = error "TODO: define listToMap"
 
+-- | Conversion from 'Map' to associative list sorted by key
+--
+-- Usage example:
+--
+-- >>> mapToList (Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf))
+-- [(1,'b'),(2,'a'),(3,'c')]
+-- >>> mapToList Leaf
+-- []
+--
 mapToList :: Map k v -> [(k, v)]
 mapToList = error "TODO: define mapToList"
 
+-- | Searches given 'Map' for a value associated with given key
+--
+-- Returns value associated with key wrapped into 'Just'
+-- if it was found and 'Nothing' otherwise.
+--
+-- Usage example:
+--
+-- >>> mlookup 1 (Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf))
+-- Just 'a'
+-- >>> mlookup 'a' Leaf
+-- Nothing
+--
 mlookup :: Ord k => k -> Map k v -> Maybe v
 mlookup = error "TODO: define mlookup"
 
+-- | Inserts given key and value into given 'Map'
+--
+-- If given key was already present in the 'Tree'
+-- then replaces its value with given value.
+--
+-- Usage example:
+--
+-- >>> minsert 0 'd' (Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf))
+-- Branch (2,'a') (Branch (1,'b') (Branch (0,'d') Leaf Leaf) Leaf) (Branch (3,'c') Leaf Leaf)
+-- >>> minsert 1 'X' (Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf))
+-- Branch (2,'a') (Branch (1,'X') Leaf Leaf) (Branch (3,'c' Leaf Leaf)
+-- >>> minsert 1 'X' Leaf
+-- Branch (1,'X') Leaf Leaf
+--
 minsert :: Ord k => k -> v -> Map k v -> Map k v
 minsert = error "TODO: define minsert"
 
+-- | Deletes given key from given 'Map'
+--
+-- Returns updated 'Map' if the key was present in it;
+-- or unchanged 'Map' otherwise.
+--
+-- Usage example:
+--
+-- >>> mdelete 1 (Branch (2,'a') (Branch (1,'b') Leaf Leaf) (Branch (3,'c') Leaf Leaf))
+-- Branch (2,'a') Leaf (Branch (3,'c') Leaf Leaf)
+-- >>> mdelete 'a' Leaf
+-- Leaf
+--
 mdelete :: Ord k => k -> Map k v -> Map k v
 mdelete = error "TODO: define mdelete"
