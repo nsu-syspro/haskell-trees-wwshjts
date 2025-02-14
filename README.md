@@ -88,13 +88,13 @@ Each task is based on results from all previous ones, so they should be implemen
 The first task is to define functions for traversing tree and forest (list of trees).
 
 There are [many ways](https://en.wikipedia.org/wiki/Tree_traversal) to traverse trees.
-However, we will focus on the most common ones derived from deep-first search:
+However, we will focus on the most common ones derived from depth-first search:
 
 - Pre-order
 - In-order
 - Post-order
 
-All of which are perfectly illustrated in [Wikipedia](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search):
+All of which are perfectly summarized in [Wikipedia](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search):
 
 [![](https://upload.wikimedia.org/wikipedia/commons/7/75/Sorted_binary_tree_ALL_RGB.svg)](https://en.wikipedia.org/wiki/Tree_traversal#Depth-first_search)
 
