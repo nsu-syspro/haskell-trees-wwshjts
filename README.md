@@ -108,7 +108,7 @@ All of which are perfectly summarized in [Wikipedia](https://en.wikipedia.org/wi
 
 ### Task
 
-In [src/Task1.hs](src/Task1.hs] you will find following type definitions of
+In [src/Task1.hs](src/Task1.hs) you will find following type definitions of
 binary tree, forest and enumeration of selected orders:
 
 ```haskell
@@ -136,7 +136,7 @@ Your goal is to implement following functions for tree and forest traversal:
   ```haskell
   >>> torder PreOrder  (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
   "A.B.."
->>> torder InOrder   (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
+  >>> torder InOrder   (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
   ".A.B."
   >>> torder PostOrder (Just '.') (Branch 'A' Leaf (Branch 'B' Leaf Leaf))
   "...BA"
@@ -179,9 +179,9 @@ The second task is to implement common [binary search tree](https://en.wikipedia
 
 ### Comparison
 
-To support BST you will need some way to compare elements.
+To implement BST you will need some way to compare elements.
 One way would be to add constraint `Ord a =>` to all the functions,
-which is a usual approach to do this.
+which is a usual approach to do such things.
 
 However, for this task you will explicitly pass *comparison function* to all required functions instead.
 The comparison function will return element of the enumeration `Ordering` indicating whether its
@@ -357,8 +357,9 @@ with given value deleted if it was contained in BST with respect to given compar
 ### Tree-based map
 
 The third and last task is to implement a key-value map structure on top of *binary search tree*
-that you implement in previous task.
+that you implemented in previous task.
 It should provide the same API as BST: search, insertion and deletion.
+
 However, this time lets use `Ord` constraint in API instead of passing explicit comparison function.
 
 > **Reminder**
@@ -377,7 +378,7 @@ However, this time lets use `Ord` constraint in API instead of passing explicit 
 >
 > You might think that `O(log n)` is unacceptable complexity when compared to amortized `O(1)`
 > of hash map. But tree-based map implementations actually have some advantages over
-> hash map in functional language context, especially in Haskell:
+> hash map in functional language context:
 >
 > - Most tree-based implementations provide automatic sorting, provided there is an `Ord` constraint on keys
 >   (which they usually have out of the box)
@@ -387,7 +388,7 @@ However, this time lets use `Ord` constraint in API instead of passing explicit 
 > - Trees are inherently *immutable* and *persistent* which allows them to be efficiently used
 >   and reused in pure functions (it is also possible to implement immutable and persistent
 >   hash map, for example with [hash array mapped trie](https://en.wikipedia.org/wiki/Hash_array_mapped_trie),
->   but the implementation because much more involved and complicated)
+>   but the implementation becomes much more involved and complicated)
 >
 > Of course some applications really require faster element lookup and for such cases
 > (provided keys are hashable and their ordering is not required) there is established
@@ -396,7 +397,7 @@ However, this time lets use `Ord` constraint in API instead of passing explicit 
 
 ### Type
 
-In [src/Task3.hs](src/Task3.hs] you will find following type synonym for key-value map
+In [src/Task3.hs](src/Task3.hs) you will find following type synonym for key-value map
 based on `Tree` type introduced in the first task:
 
 ```haskell
@@ -415,7 +416,7 @@ constraint on the keys. So pairs `(k, v)` will not be instance of `Ord` out-of-t
 So when supporting functions below, try to come up with a solution to this problem
 that *does not* require `Ord v` for values.
 
-If you find yourself stuck, return to this section and checkout hints below.
+If you find yourself stuck, return to this section and check out hints below.
 
 <details>
 <summary>Hint</summary>
@@ -432,24 +433,24 @@ except the ones where you don't have actual key-value pair to compare with,
 but only have the key.
 
 It might seem impossible to obtain a key-value pair without having additional
-constraints on value type (e.g. have it be `Bounded v` and use `minBound`).
+constraints on value type (e.g. have it be `Bounded v` and use `minBound` as placeholder for value).
 
 But it is actually possible, especially in Haskell.
 
-Try to figure it out on your own, or if you really stuck check out the next hint.
+Try to figure out the solution on your own, and if you are really stuck, check out the next hint.
 
 <details>
 <summary>Another hint</summary>
 
-Remember that Haskell is lazy language. Find a way to abuse it for this particular problem.
+Remember that Haskell is lazy language! Find a way to abuse it for this particular problem.
 
 <details>
 <summary>Final hint</summary>
 
 We might have no information about the type `v` or if it even has any values to use
-as kind of "placeholder" for pair comparison.
+as placeholder for pair comparison.
 But there are built-in polymorphic functions that you can use in place of any other type,
-which will definitely help us in this case.
+which will definitely help in this case.
 
 </details>
 
