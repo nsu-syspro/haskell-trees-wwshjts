@@ -15,7 +15,8 @@ import Task1 (Tree(..))
 data Ordering = LT | EQ | GT
   deriving Show
 
--- | Binary comparison function
+-- | Binary comparison function indicating whether first argument is less, equal or
+-- greater than the second one (returning 'LT', 'EQ' or 'GT' respectively)
 type Cmp a = a -> a -> Ordering
 
 -- * Function definitions

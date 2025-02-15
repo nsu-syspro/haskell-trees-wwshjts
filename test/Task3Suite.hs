@@ -30,6 +30,12 @@ task3Tests = testGroup "Task3"
           let uxs = nubBy ((==) `on` fst) xs
           in mapToList (listToMap (uxs :: [(Int, Char)])) === sortBy (comparing fst) uxs
 
+  , testProperty "mapToList (listToMap list) == sort list (without `Ord v`)" $
+      withMaxSuccess 100 $ counterexample "unexpected result for" $
+        \xs ->
+          let uxs = nubBy ((==) `on` fst) xs
+          in mapToList (listToMap (uxs :: [(Int, Custom)])) === sortBy (comparing fst) uxs
+
   , testProperty "mlookup" $
       withMaxSuccess 1000 $ counterexample "unexpected mlookup result of" $
         \(x, TestMap tree) ->
@@ -76,3 +82,11 @@ arbitrarySizedMap bounds m = do
   TestMap l <- arbitrarySizedMap (Just lbounds) (m `div` 2)
   TestMap r <- arbitrarySizedMap (Just rbounds) (m `div` 2)
   pure $ TestMap (Branch (k, v) l r)
+
+-- | Custom type which is not instance of 'Ord'
+data Custom = A | B | C
+  deriving (Show, Eq)
+
+instance Arbitrary Custom where
+  arbitrary = elements [A, B, C]
+

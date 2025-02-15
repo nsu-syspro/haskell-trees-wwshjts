@@ -16,7 +16,7 @@ type Map k v = Tree (k, v)
 
 -- * Function definitions
 
--- | Construction of 'Map' from associative list
+-- | Construction of 'Map' from association list
 --
 -- Usage example:
 --
@@ -28,7 +28,7 @@ type Map k v = Tree (k, v)
 listToMap :: Ord k => [(k, v)] -> Map k v
 listToMap = error "TODO: define listToMap"
 
--- | Conversion from 'Map' to associative list sorted by key
+-- | Conversion from 'Map' to association list sorted by key
 --
 -- Usage example:
 --
@@ -57,7 +57,7 @@ mlookup = error "TODO: define mlookup"
 
 -- | Inserts given key and value into given 'Map'
 --
--- If given key was already present in the 'Tree'
+-- If given key was already present in the 'Map'
 -- then replaces its value with given value.
 --
 -- Usage example:
