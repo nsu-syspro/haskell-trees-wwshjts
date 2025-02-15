@@ -1,4 +1,4 @@
-# Haskell assignment base
+# Haskell: Trees
 
 <img alt="points bar" align="right" height="36" src="../../blob/badges/.github/badges/points-bar.svg" />
 
