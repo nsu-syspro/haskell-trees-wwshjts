@@ -361,6 +361,11 @@ that you implement in previous task.
 It should provide the same API as BST: search, insertion and deletion.
 However, this time lets use `Ord` constraint in API instead of passing explicit comparison function.
 
+> **Reminder**
+>
+> Please avoid code duplication and import any previously defined functions from `Task1` and `Task2`
+> if you need them.
+
 > [!NOTE]
 >
 > This tree-based implementation is similar to the most commonly used map implementation
