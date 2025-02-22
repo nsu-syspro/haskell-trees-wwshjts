@@ -37,7 +37,8 @@ torder :: Order    -- ^ Order of resulting traversal
        -> Maybe a  -- ^ Optional leaf value
        -> Tree a   -- ^ Tree to traverse
        -> [a]      -- ^ List of values in specified order
-torder = error "TODO: define torder"
+torder ord leafV (Branch mark l r) = ins ord mark (torder ord leafV l, torder ord leafV r)
+torder _   leafV Leaf              = maybeToList leafV
 
 -- | Returns values of given 'Forest' separated by optional separator
 -- where each 'Tree' is traversed in specified 'Order' with optional leaf value
@@ -56,5 +57,28 @@ forder :: Order     -- ^ Order of tree traversal
        -> Maybe a   -- ^ Optional leaf value
        -> Forest a  -- ^ List of trees to traverse
        -> [a]       -- ^ List of values in specified tree order
-forder = error "TODO: define forder"
+forder ord fV lV forest = intercalate (maybeToList fV) (map (torder ord lV) forest)
+
+--
+
+-- Maybe it would be better to make this function local in `torder`
+-- using `where` clause?
+ins :: Order -> a -> ([a], [a]) -> [a]
+ins ord mark (l, r) = case ord of
+                        PreOrder  -> mark : l ++ r 
+                        InOrder   -> l ++ [mark] ++ r
+                        PostOrder -> l ++ r ++ [mark]
+
+--
+
+maybeToList :: Maybe a -> [a]
+maybeToList (Just x) = [x]
+maybeToList Nothing  = []
+
+--
+
+intercalate :: [a] -> [[a]] -> [a]
+intercalate _ []         = []
+intercalate _ [x]        = x
+intercalate sep (x : xs) = x ++ sep ++ intercalate sep xs
 
