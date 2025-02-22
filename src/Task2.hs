@@ -7,7 +7,7 @@ module Task2 where
 -- that are not supposed to be used in this assignment
 import Prelude hiding (compare, foldl, foldr, Ordering(..))
 
-import Task1 (Tree(..))
+import Task1 (Tree(..), torder, Order(..))
 
 -- * Type definitions
 
@@ -66,7 +66,7 @@ listToBST = sListToBst
 -- []
 --
 bstToList :: Tree a -> [a]
-bstToList = error "TODO: define bstToList"
+bstToList = torder InOrder Nothing
 
 -- | Tests whether given tree is a valid binary search tree
 -- with respect to given comparison function
@@ -81,7 +81,16 @@ bstToList = error "TODO: define bstToList"
 -- False
 --
 isBST :: Cmp a -> Tree a -> Bool
-isBST = error "TODO: define isBST"
+isBST cmp t = isBSTImpl cmp (bstToList t) 
+
+isBSTImpl :: Cmp a -> [a] -> Bool
+isBSTImpl _   [ ]          = True
+isBSTImpl _   [_]          = True
+isBSTImpl cmp (x : y : zs) =
+    case cmp x y of
+        LT -> isBSTImpl cmp (y : zs)
+        _  -> False
+
 
 -- | Searches given binary search tree for
 -- given value with respect to given comparison
@@ -99,7 +108,13 @@ isBST = error "TODO: define isBST"
 -- Just 2
 --
 tlookup :: Cmp a -> a -> Tree a -> Maybe a
-tlookup = error "TODO: define tlookup"
+tlookup _   _ Leaf = Nothing
+tlookup cmp e (Branch val l r) =
+    case cmp e val of
+        EQ -> Just val
+        _  -> case tlookup cmp e l of
+                Just s  -> Just s
+                Nothing -> tlookup cmp e r 
 
 -- | Inserts given value into given binary search tree
 -- preserving its BST properties with respect to given comparison
@@ -121,7 +136,7 @@ tinsert _   e Leaf = Branch e Leaf Leaf
 tinsert cmp e (Branch val l r) =
     case cmp e val of
         LT -> Branch val (tinsert cmp e l) r
-        EQ -> Branch val (tinsert cmp e l) r
+        EQ -> Branch e   l r 
         GT -> Branch val l (tinsert cmp e r)
 
 
@@ -139,8 +154,30 @@ tinsert cmp e (Branch val l r) =
 -- Leaf
 --
 tdelete :: Cmp a -> a -> Tree a -> Tree a
-tdelete = error "TODO: define tdelete"
+tdelete _   _ Leaf                   = Leaf
+tdelete cmp e (Branch val Leaf Leaf) = 
+    case cmp e val of
+        EQ -> Leaf
+        _  -> Branch val Leaf Leaf
+tdelete cmp e (Branch val l Leaf) =
+    case cmp e val of
+        EQ -> l
+        _  -> Branch val (tdelete cmp e l) Leaf
+tdelete cmp e (Branch val Leaf r) =
+    case cmp e val of
+        EQ -> r 
+        _  -> Branch val Leaf (tdelete cmp e r) 
+tdelete cmp e (Branch val l r) =
+    case cmp e val of
+        EQ -> Branch rightMost (tdelete cmp rightMost l) r
+            where rightMost = findRightMost l
+        _  -> Branch val (tdelete cmp e l) (tdelete cmp e r)
 
+
+findRightMost :: Tree a -> a
+findRightMost Leaf = error "No right most in empty tree"
+findRightMost (Branch val Leaf Leaf) = val
+findRightMost (Branch _   _    r)    = findRightMost r
 
 -- | Bulding balanced BST using sorted list
 -- O(n*logn)
@@ -174,7 +211,7 @@ mergeImpl _   [] ys = ys
 mergeImpl cmp (x : xs) (y : ys) = 
     case cmp x y of
         LT -> x : mergeImpl cmp xs (y : ys)
-        EQ -> x : mergeImpl cmp xs (y : ys)
+        EQ -> x : mergeImpl cmp xs ys
         GT -> y : mergeImpl cmp (x : xs) ys
 -- 
 
@@ -195,4 +232,3 @@ splitByImpl :: Int -> ([a], [a]) -> ([a], [a])
 splitByImpl 0 res          = res
 splitByImpl _ (ls, [])     = (ls, [])
 splitByImpl n (ls, r : rs) = splitByImpl (n - 1) (ls ++ [r], rs)
-
