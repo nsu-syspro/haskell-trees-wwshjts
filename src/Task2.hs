@@ -33,7 +33,11 @@ type Cmp a = a -> a -> Ordering
 -- GT
 --
 compare :: Ord a => Cmp a
-compare = error "TODO: define compare"
+compare l r
+    | l < r  = LT
+    | l == r = EQ
+    | l > r  = GT
+    | otherwise = error "Something bad happened in compare"
 
 -- | Conversion of list to binary search tree
 -- using given comparison function
@@ -46,7 +50,7 @@ compare = error "TODO: define compare"
 -- Leaf
 --
 listToBST :: Cmp a -> [a] -> Tree a
-listToBST = error "TODO: define listToBST"
+listToBST = sListToBst 
 
 -- | Conversion from binary search tree to list
 --
@@ -113,7 +117,13 @@ tlookup = error "TODO: define tlookup"
 -- Branch 'a' Leaf Leaf
 --
 tinsert :: Cmp a -> a -> Tree a -> Tree a
-tinsert = error "TODO: define tinsert"
+tinsert _   e Leaf = Branch e Leaf Leaf
+tinsert cmp e (Branch val l r) =
+    case cmp e val of
+        LT -> Branch val (tinsert cmp e l) r
+        EQ -> Branch val (tinsert cmp e l) r
+        GT -> Branch val l (tinsert cmp e r)
+
 
 -- | Deletes given value from given binary search tree
 -- preserving its BST properties with respect to given comparison
@@ -130,3 +140,59 @@ tinsert = error "TODO: define tinsert"
 --
 tdelete :: Cmp a -> a -> Tree a -> Tree a
 tdelete = error "TODO: define tdelete"
+
+
+-- | Bulding balanced BST using sorted list
+-- O(n*logn)
+
+sListToBst :: Cmp a -> [a] -> Tree a
+sListToBst cmp xs = sListToBstImpl cmp (mSort cmp xs)
+
+sListToBstImpl :: Cmp a -> [a] -> Tree a
+sListToBstImpl _   []  = Leaf
+sListToBstImpl _   [x] = Branch x Leaf Leaf 
+sListToBstImpl cmp xs  
+    = Branch central (sListToBstImpl cmp (init (fst splitted))) (sListToBstImpl cmp (snd splitted))
+        where 
+            central   = takeCentral xs
+            splitted  = splitByHalf xs 
+
+
+-- | Merge sort
+mSort :: Cmp a -> [a] -> [a]
+mSort _   []  = []
+mSort _   [x] = [x]
+mSort cmp xs  = merge cmp (mSortBoth cmp (splitByHalf xs))
+    where mSortBoth cmpN (l, r) = (mSort cmpN l, mSort cmpN r)
+
+merge :: Cmp a -> ([a], [a]) -> [a]
+merge cmp (l, r) =  mergeImpl cmp l r
+
+mergeImpl :: Cmp a -> [a] -> [a] -> [a]
+mergeImpl _   xs [] = xs
+mergeImpl _   [] ys = ys
+mergeImpl cmp (x : xs) (y : ys) = 
+    case cmp x y of
+        LT -> x : mergeImpl cmp xs (y : ys)
+        EQ -> x : mergeImpl cmp xs (y : ys)
+        GT -> y : mergeImpl cmp (x : xs) ys
+-- 
+
+takeCentral :: [a] -> a 
+takeCentral xs = last (fst (splitByHalf xs))
+
+splitByHalf :: [a] -> ([a], [a])
+splitByHalf xs = splitBy half xs
+    where half = (length xs `div` 2) + (length xs `mod` 2)
+
+splitBy :: Int -> [a] -> ([a], [a])
+splitBy n xs
+    | n <= 0 || null xs = undefined 
+    | otherwise         = splitByImpl n ([], xs)
+
+
+splitByImpl :: Int -> ([a], [a]) -> ([a], [a])
+splitByImpl 0 res          = res
+splitByImpl _ (ls, [])     = (ls, [])
+splitByImpl n (ls, r : rs) = splitByImpl (n - 1) (ls ++ [r], rs)
+
