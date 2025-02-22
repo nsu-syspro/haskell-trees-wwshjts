@@ -179,9 +179,23 @@ findRightMost Leaf = error "No right most in empty tree"
 findRightMost (Branch val Leaf Leaf) = val
 findRightMost (Branch _   _    r)    = findRightMost r
 
--- | Bulding balanced BST using sorted list
--- O(n*logn)
+-- | Building BST from list
+-- this function has O(n^2) and no strict guarantees about balance of tree
+--
+-- But actually it is something like quick sort
+-- so if data is uniformly distributed it has O(n * logn) average complexity
+-- and expected that tree will be closer to balanced
+qListToBst :: Cmp a -> [a] -> Tree a
+qListToBst _   [ ] = Leaf
+qListToBst _   [e] = Branch e Leaf Leaf
+qListToBst cmp (x : xs) = tinsert cmp x (qListToBst cmp xs)
 
+-- | Bulding balanced BST from list
+-- O(n * logn) complexity is guaranteed
+--
+-- Yeah, I guess this is overkill for this task
+-- and qListToBst works nice (and I described above why)
+-- but Im really wanted to try write a merge sort in haskell)
 sListToBst :: Cmp a -> [a] -> Tree a
 sListToBst cmp xs = sListToBstImpl cmp (mSort cmp xs)
 
@@ -196,6 +210,8 @@ sListToBstImpl cmp xs
 
 
 -- | Merge sort
+--
+-- List has no duplicates after sorting
 mSort :: Cmp a -> [a] -> [a]
 mSort _   []  = []
 mSort _   [x] = [x]
@@ -211,7 +227,7 @@ mergeImpl _   [] ys = ys
 mergeImpl cmp (x : xs) (y : ys) = 
     case cmp x y of
         LT -> x : mergeImpl cmp xs (y : ys)
-        EQ -> x : mergeImpl cmp xs ys
+        EQ -> x : mergeImpl cmp xs ys           -- delete duplicates while merging
         GT -> y : mergeImpl cmp (x : xs) ys
 -- 
 
