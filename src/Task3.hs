@@ -9,6 +9,8 @@ import Prelude hiding (compare, foldl, foldr, Ordering(..))
 
 import Task1 (Tree(..))
 
+import Task2
+
 -- * Type definitions
 
 -- | Tree-based map
@@ -26,7 +28,7 @@ type Map k v = Tree (k, v)
 -- Leaf
 --
 listToMap :: Ord k => [(k, v)] -> Map k v
-listToMap = error "TODO: define listToMap"
+listToMap = listToBST compareKV
 
 -- | Conversion from 'Map' to association list sorted by key
 --
@@ -38,7 +40,7 @@ listToMap = error "TODO: define listToMap"
 -- []
 --
 mapToList :: Map k v -> [(k, v)]
-mapToList = error "TODO: define mapToList"
+mapToList = bstToList 
 
 -- | Searches given 'Map' for a value associated with given key
 --
@@ -53,7 +55,9 @@ mapToList = error "TODO: define mapToList"
 -- Nothing
 --
 mlookup :: Ord k => k -> Map k v -> Maybe v
-mlookup = error "TODO: define mlookup"
+mlookup key m = case tlookup compareKV (key, undefined) m of
+    Just (_, val) -> Just val
+    Nothing       -> Nothing
 
 -- | Inserts given key and value into given 'Map'
 --
@@ -70,7 +74,7 @@ mlookup = error "TODO: define mlookup"
 -- Branch (1,'X') Leaf Leaf
 --
 minsert :: Ord k => k -> v -> Map k v -> Map k v
-minsert = error "TODO: define minsert"
+minsert key val = tinsert compareKV (key, val)
 
 -- | Deletes given key from given 'Map'
 --
@@ -85,4 +89,19 @@ minsert = error "TODO: define minsert"
 -- Leaf
 --
 mdelete :: Ord k => k -> Map k v -> Map k v
-mdelete = error "TODO: define mdelete"
+mdelete key = tdelete compareKV (key, undefined)
+
+
+----
+
+-- | Provides compare function for map (key, value) pairs
+-- function ignores value cause of lazy evaluation
+compareKV :: Ord k => Cmp (k, v)
+compareKV l r 
+    | ll < rl   = LT
+    | ll == rl  = EQ
+    | ll > rl   = GT
+    | otherwise = error "Something really bad happened in compare KV"
+    where
+        ll = fst l
+        rl = fst r
