@@ -81,14 +81,16 @@ bstToList = torder InOrder Nothing
 -- False
 --
 isBST :: Cmp a -> Tree a -> Bool
-isBST cmp t = isBSTImpl cmp (bstToList t) 
+isBST cmp t = isStrictlyAscending cmp (bstToList t) 
 
-isBSTImpl :: Cmp a -> [a] -> Bool
-isBSTImpl _   [ ]          = True
-isBSTImpl _   [_]          = True
-isBSTImpl cmp (x : y : zs) =
+-- | Checks whether given list is sorted
+-- and doesn't contain equal elements
+isStrictlyAscending :: Cmp a -> [a] -> Bool
+isStrictlyAscending _   [ ]          = True
+isStrictlyAscending _   [_]          = True
+isStrictlyAscending cmp (x : y : zs) =
     case cmp x y of
-        LT -> isBSTImpl cmp (y : zs)
+        LT -> isStrictlyAscending cmp (y : zs)
         _  -> False
 
 

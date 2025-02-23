@@ -97,11 +97,8 @@ mdelete key = tdelete compareKV (key, undefined)
 -- | Provides compare function for map (key, value) pairs
 -- function ignores value cause of lazy evaluation
 compareKV :: Ord k => Cmp (k, v)
-compareKV l r 
+compareKV (ll, _) (rl, _)
     | ll < rl   = LT
     | ll == rl  = EQ
     | ll > rl   = GT
     | otherwise = error "Something really bad happened in compare KV"
-    where
-        ll = fst l
-        rl = fst r
