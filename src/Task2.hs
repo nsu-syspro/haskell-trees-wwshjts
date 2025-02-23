@@ -7,7 +7,7 @@ module Task2 where
 -- that are not supposed to be used in this assignment
 import Prelude hiding (compare, foldl, foldr, Ordering(..))
 
-import Task1 (Tree(..))
+import Task1 (Tree(..), torder, Order(..))
 
 -- * Type definitions
 
@@ -33,7 +33,11 @@ type Cmp a = a -> a -> Ordering
 -- GT
 --
 compare :: Ord a => Cmp a
-compare = error "TODO: define compare"
+compare l r
+    | l < r  = LT
+    | l == r = EQ
+    | l > r  = GT
+    | otherwise = error "Something bad happened in compare"
 
 -- | Conversion of list to binary search tree
 -- using given comparison function
@@ -46,7 +50,7 @@ compare = error "TODO: define compare"
 -- Leaf
 --
 listToBST :: Cmp a -> [a] -> Tree a
-listToBST = error "TODO: define listToBST"
+listToBST = sListToBst 
 
 -- | Conversion from binary search tree to list
 --
@@ -62,7 +66,7 @@ listToBST = error "TODO: define listToBST"
 -- []
 --
 bstToList :: Tree a -> [a]
-bstToList = error "TODO: define bstToList"
+bstToList = torder InOrder Nothing
 
 -- | Tests whether given tree is a valid binary search tree
 -- with respect to given comparison function
@@ -77,7 +81,18 @@ bstToList = error "TODO: define bstToList"
 -- False
 --
 isBST :: Cmp a -> Tree a -> Bool
-isBST = error "TODO: define isBST"
+isBST cmp t = isStrictlyAscending cmp (bstToList t) 
+
+-- | Checks whether given list is sorted
+-- and doesn't contain equal elements
+isStrictlyAscending :: Cmp a -> [a] -> Bool
+isStrictlyAscending _   [ ]          = True
+isStrictlyAscending _   [_]          = True
+isStrictlyAscending cmp (x : y : zs) =
+    case cmp x y of
+        LT -> isStrictlyAscending cmp (y : zs)
+        _  -> False
+
 
 -- | Searches given binary search tree for
 -- given value with respect to given comparison
@@ -95,7 +110,12 @@ isBST = error "TODO: define isBST"
 -- Just 2
 --
 tlookup :: Cmp a -> a -> Tree a -> Maybe a
-tlookup = error "TODO: define tlookup"
+tlookup _   _ Leaf = Nothing
+tlookup cmp e (Branch val l r) =
+    case cmp e val of
+        EQ -> Just val
+        GT -> tlookup cmp e r 
+        LT -> tlookup cmp e l
 
 -- | Inserts given value into given binary search tree
 -- preserving its BST properties with respect to given comparison
@@ -113,7 +133,13 @@ tlookup = error "TODO: define tlookup"
 -- Branch 'a' Leaf Leaf
 --
 tinsert :: Cmp a -> a -> Tree a -> Tree a
-tinsert = error "TODO: define tinsert"
+tinsert _   e Leaf = Branch e Leaf Leaf
+tinsert cmp e (Branch val l r) =
+    case cmp e val of
+        LT -> Branch val (tinsert cmp e l) r
+        EQ -> Branch e   l r 
+        GT -> Branch val l (tinsert cmp e r)
+
 
 -- | Deletes given value from given binary search tree
 -- preserving its BST properties with respect to given comparison
@@ -129,4 +155,97 @@ tinsert = error "TODO: define tinsert"
 -- Leaf
 --
 tdelete :: Cmp a -> a -> Tree a -> Tree a
-tdelete = error "TODO: define tdelete"
+tdelete _   _ Leaf                   = Leaf
+tdelete cmp e (Branch val Leaf Leaf) = 
+    case cmp e val of
+        EQ -> Leaf
+        _  -> Branch val Leaf Leaf
+tdelete cmp e (Branch val l Leaf) =
+    case cmp e val of
+        EQ -> l
+        _  -> Branch val (tdelete cmp e l) Leaf
+tdelete cmp e (Branch val Leaf r) =
+    case cmp e val of
+        EQ -> r 
+        _  -> Branch val Leaf (tdelete cmp e r) 
+tdelete cmp e (Branch val l r) =
+    case cmp e val of
+        EQ -> Branch rightMost (tdelete cmp rightMost l) r
+            where rightMost = findRightMost l
+        _  -> Branch val (tdelete cmp e l) (tdelete cmp e r)
+
+
+findRightMost :: Tree a -> a
+findRightMost Leaf = error "No right most in empty tree"
+findRightMost (Branch val Leaf Leaf) = val
+findRightMost (Branch _   _    r)    = findRightMost r
+
+-- | Building BST from list
+-- this function has O(n^2) and no strict guarantees about balance of tree
+--
+-- But actually it is something like quick sort
+-- so if data is uniformly distributed it has O(n * logn) average complexity
+-- and expected that tree will be closer to balanced
+qListToBst :: Cmp a -> [a] -> Tree a
+qListToBst _   [ ] = Leaf
+qListToBst _   [e] = Branch e Leaf Leaf
+qListToBst cmp (x : xs) = tinsert cmp x (qListToBst cmp xs)
+
+-- | Bulding balanced BST from list
+-- O(n * logn) complexity is guaranteed
+--
+-- Yeah, I guess this is overkill for this task
+-- and qListToBst works nice (and I described above why)
+-- but Im really wanted to try write a merge sort in haskell)
+sListToBst :: Cmp a -> [a] -> Tree a
+sListToBst cmp xs = sListToBstImpl cmp (mSort cmp xs)
+
+sListToBstImpl :: Cmp a -> [a] -> Tree a
+sListToBstImpl _   []  = Leaf
+sListToBstImpl _   [x] = Branch x Leaf Leaf 
+sListToBstImpl cmp xs  
+    = Branch central (sListToBstImpl cmp (init (fst splitted))) (sListToBstImpl cmp (snd splitted))
+        where 
+            central   = takeCentral xs
+            splitted  = splitByHalf xs 
+
+
+-- | Merge sort
+--
+-- List has no duplicates after sorting
+mSort :: Cmp a -> [a] -> [a]
+mSort _   []  = []
+mSort _   [x] = [x]
+mSort cmp xs  = merge cmp (mSortBoth cmp (splitByHalf xs))
+    where mSortBoth cmpN (l, r) = (mSort cmpN l, mSort cmpN r)
+
+merge :: Cmp a -> ([a], [a]) -> [a]
+merge cmp (l, r) =  mergeImpl cmp l r
+
+mergeImpl :: Cmp a -> [a] -> [a] -> [a]
+mergeImpl _   xs [] = xs
+mergeImpl _   [] ys = ys
+mergeImpl cmp (x : xs) (y : ys) = 
+    case cmp x y of
+        LT -> x : mergeImpl cmp xs (y : ys)
+        EQ -> x : mergeImpl cmp xs ys           -- delete duplicates while merging
+        GT -> y : mergeImpl cmp (x : xs) ys
+-- 
+
+takeCentral :: [a] -> a 
+takeCentral xs = last (fst (splitByHalf xs))
+
+splitByHalf :: [a] -> ([a], [a])
+splitByHalf xs = splitBy half xs
+    where half = (length xs `div` 2) + (length xs `mod` 2)
+
+splitBy :: Int -> [a] -> ([a], [a])
+splitBy n xs
+    | n <= 0 || null xs = undefined 
+    | otherwise         = splitByImpl n ([], xs)
+
+
+splitByImpl :: Int -> ([a], [a]) -> ([a], [a])
+splitByImpl 0 res          = res
+splitByImpl _ (ls, [])     = (ls, [])
+splitByImpl n (ls, r : rs) = splitByImpl (n - 1) (ls ++ [r], rs)
