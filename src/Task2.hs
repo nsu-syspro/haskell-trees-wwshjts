@@ -112,9 +112,8 @@ tlookup _   _ Leaf = Nothing
 tlookup cmp e (Branch val l r) =
     case cmp e val of
         EQ -> Just val
-        _  -> case tlookup cmp e l of
-                Just s  -> Just s
-                Nothing -> tlookup cmp e r 
+        GT -> tlookup cmp e r 
+        LT -> tlookup cmp e l
 
 -- | Inserts given value into given binary search tree
 -- preserving its BST properties with respect to given comparison
